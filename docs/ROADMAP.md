@@ -1,8 +1,8 @@
 # Roadmap
 
-1. Deterministic foundation (starter implemented)
+1. Deterministic foundation (complete)
    - Six named failure fixtures; bounded retry policy; JSON traces; independent outcome check; tests.
-   - Add configurable versioned scenario files, schema validation, and deterministic seeded fault schedules.
+   - Implemented configurable versioned scenario files, strict validation, and deterministic seeded fault schedules (see SCENARIOS.md).
 2. Stateful tool environment
    - Synthetic order/support database; idempotent writes; duplicate-action detection.
    - Inject crashes before and after write acknowledgment. Verify final state, not returned text.
@@ -22,3 +22,4 @@
    - Reproducible commands, architecture diagram, demo, limitations, and measured results.
 
 Completion: clean-checkout offline run succeeds; durable recovery and idempotency tests pass; dashboard displays persisted evidence; CI passes; optional model evaluation is documented honestly.
+

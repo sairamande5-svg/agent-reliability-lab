@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "suite": "lookup-fixtures-v1",
+  "seed": 0,
+  "scenarios": [
+    {"name": "healthy", "faults": []},
+    {"name": "transient_timeout", "faults": ["timeout"]},
+    {"name": "rate_limit_then_success", "faults": ["rate_limit"]},
+    {"name": "malformed_then_success", "faults": ["malformed"]},
+    {"name": "persistent_timeout", "faults": ["timeout", "timeout", "timeout", "timeout"]},
+    {"name": "wrong_order", "faults": ["wrong_order", "wrong_order", "wrong_order", "wrong_order"]}
+  ]
+}

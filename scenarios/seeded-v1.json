@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "suite": "seeded-lookup-v1",
+  "seed": 42,
+  "scenarios": [
+    {"name": "mixed_faults", "generator": {"pool": ["none", "timeout", "rate_limit", "malformed", "wrong_order"], "attempts": 10}},
+    {"name": "transient_only", "generator": {"pool": ["timeout", "rate_limit"], "attempts": 3}}
+  ]
+}

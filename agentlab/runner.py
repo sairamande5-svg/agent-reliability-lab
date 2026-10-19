@@ -1,27 +1,15 @@
 """Controlled retry experiment for a simulated order lookup tool."""
 import argparse
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 import json
 from pathlib import Path
 from time import perf_counter
 
 
-@dataclass(frozen=True)
-class Scenario:
-    name: str
-    faults: tuple[str, ...]
-    expected_order: str = 'order-001'
+from .scenarios import Scenario, load_suite
 
-
-SCENARIOS = (
-    Scenario('healthy', ()),
-    Scenario('transient_timeout', ('timeout',)),
-    Scenario('rate_limit_then_success', ('rate_limit',)),
-    Scenario('malformed_then_success', ('malformed',)),
-    Scenario('persistent_timeout', ('timeout',) * 4),
-    Scenario('wrong_order', ('wrong_order',) * 4),
-)
-
+DEFAULT_SUITE = Path(__file__).resolve().parent.parent / 'scenarios' / 'lookup-v1.json'
+SCENARIOS = load_suite(DEFAULT_SUITE).scenarios
 
 class TransientToolError(Exception):
     pass
@@ -40,7 +28,7 @@ def run(scenario: Scenario, policy: str) -> dict:
             if fault in ('timeout', 'rate_limit'):
                 raise TransientToolError(fault)
             response = ({'unexpected': True} if fault == 'malformed' else {
-                'order_id': 'order-other' if fault == 'wrong_order' else scenario.expected_order,
+                'order_id': scenario.expected_order + '-other' if fault == 'wrong_order' else scenario.expected_order,
                 'status': 'shipped',
             })
             valid = (response.get('order_id') == scenario.expected_order
@@ -58,23 +46,30 @@ def run(scenario: Scenario, policy: str) -> dict:
             'trace': trace}
 
 
-def benchmark() -> dict:
-    results = [run(s, policy) for policy in ('baseline', 'retry_validate') for s in SCENARIOS]
+def benchmark(suite_path: Path = DEFAULT_SUITE, *, seed: int | None = None) -> dict:
+    suite = load_suite(suite_path, seed=seed)
+    results = [run(s, policy) for policy in ('baseline', 'retry_validate') for s in suite.scenarios]
     summary = {}
     for policy in ('baseline', 'retry_validate'):
         rows = [r for r in results if r['policy'] == policy]
         summary[policy] = {'passed': sum(r['success'] for r in rows), 'total': len(rows),
                            'tool_calls': sum(r['attempts'] for r in rows)}
-    return {'schema_version': 1, 'suite': 'lookup-fixtures-v1',
+    return {'schema_version': 1, 'suite': suite.name, 'seed': suite.seed,
+            'source_sha256': suite.source_sha256, 'fault_generator': 'sha256-v1',
             'limitations': 'Scripted fixtures, not live LLMs. Timings measure local Python only. No model cost measured.',
-            'scenarios': [asdict(s) for s in SCENARIOS], 'summary': summary, 'results': results}
+            'scenarios': [asdict(s) for s in suite.scenarios], 'summary': summary, 'results': results}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('artifacts/benchmark.json'))
+    parser.add_argument('--scenarios', type=Path, default=DEFAULT_SUITE)
+    parser.add_argument('--seed', type=int, default=None, help='override suite seed (0 through 2**63-1)')
     args = parser.parse_args()
-    report = benchmark()
+    try:
+        report = benchmark(args.scenarios, seed=args.seed)
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report['summary'], indent=2))
@@ -82,3 +77,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
