@@ -3,7 +3,7 @@
 1. Deterministic foundation (complete)
    - Six named failure fixtures; bounded retry policy; JSON traces; independent outcome check; tests.
    - Implemented configurable versioned scenario files, strict validation, and deterministic seeded fault schedules (see SCENARIOS.md).
-2. Stateful tool environment
+2. Stateful tool environment (complete)
    - Synthetic order/support database; idempotent writes; duplicate-action detection.
    - Inject crashes before and after write acknowledgment. Verify final state, not returned text.
 3. Durable execution
