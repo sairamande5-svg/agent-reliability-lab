@@ -19,9 +19,25 @@ The central question: **if a tool commits an action but the acknowledgment is lo
 
 This is currently an **offline engineering testbed with scripted policies and synthetic data**. It does not measure live model quality, real customer outcomes, API latency, or model cost. No credentials, model calls, paid APIs, or third-party runtime packages are needed.
 
+## Engineering evidence
+
+**Python 3.11+ · SQLite WAL · Hypothesis · Playwright · GitHub Actions · Pages-ready static demo**
+
+- **Real process recovery:** terminate a worker with SIGKILL at four synchronized
+  write/acknowledgment boundaries, resume in a new process, and inspect rollback,
+  database integrity, and one final ticket/action. [Crash testing](docs/CRASH_TESTING.md).
+- **Property-based testing:** Hypothesis generates interleaved writes, conflicting
+  payloads, crash schedules, connection reopenings, and persisted-budget scenarios.
+  A separate reference model checks state after every generated rule.
+  [Property tests](docs/PROPERTY_TESTING.md).
+- **Portable deployment:** export a self-contained static dashboard, downloadable
+  evidence, and checksums. The Pages workflow gates deployment on tests,
+  properties, regression checks, and browser acceptance.
+  [Deployment instructions and current status](docs/DEPLOYMENT.md).
+
 ## Portfolio release status
 
-The offline MVP is demonstrable, with **41 automated tests**, browser acceptance
+The offline MVP is demonstrable, with **47 standard tests plus three Hypothesis property tests**, browser acceptance
 checks, persisted run comparison, offline replay, and a versioned regression gate.
 The [release checklist](docs/RELEASE.md) records **16/20 scope checks complete**;
 remote CI, live-provider work, and default-branch publication remain pending.
@@ -57,7 +73,7 @@ Open the generated `index.html` in a browser that permits local HTML files. The 
 
 1. Compare the top cards: the lookup baseline passes 1/6 fixtures; retry-and-validate passes 4/6. These deliberately constructed fixtures favor transient recovery and do not establish general model performance.
 2. Select **Order lookup** and filter to **Failed**. Expand a persistent failure to see why retries cannot solve every task.
-3. Click **Explore the lost acknowledgment**. The first attempt has a persisted `started` marker, because its caller never checkpointed a response. The reopened executor uses the same action ID on attempt two.
+3. Click **Inspect real process-kill recovery** to see the four terminated workers and their final database evidence. Click **Explore the lost acknowledgment** for the separate exception-based fixture. The first attempt has a persisted `started` marker, because its caller never checkpointed a response. The reopened executor uses the same action ID on attempt two.
 4. Expand the evidence: the final database has one support ticket, one action identity, and a replay event. The final-state check establishes the result independently.
 5. Download the JSON evidence. Switch to **Support writes** to inspect all four controlled write/crash fixtures.
 
@@ -88,16 +104,33 @@ python -m agentlab.runner --output artifacts/benchmark.json
 python -m agentlab.runner --scenarios scenarios/seeded-v1.json --seed 7 --output artifacts/seeded.json
 python -m agentlab.stateful_runner --output artifacts/stateful.json
 python -m agentlab.adapters --output artifacts/replay.json
+python -m agentlab.process_crash --output artifacts/process-crash.json
+python -m tools.build_site --output artifacts/site
 ```
 
 The stateful runner uses isolated temporary databases. Its report retains inspected final-state evidence; the databases themselves are removed after the run. `SupportTools` and `DurableRun` also accept explicit database paths for application-level use.
 
 ## Scope and limitations
 
-- Controlled boundary crashes are Python exceptions, not process kills, power failures, or production infrastructure failures.
+- Exception-based fixtures and actual process-kill experiments are labeled separately. SIGKILL recovery is verified locally; host power loss, disk failure, and production infrastructure failure are not simulated.
 - Durable execution supports one executor per database. Distributed leases and concurrent policy execution are not implemented.
 - The dashboard compares scripted policies and authored offline replays, with persisted run history. The provider-neutral interface is implemented; live provider integration and actual held-out model evaluation remain outstanding.
 - Cost and token metadata are unavailable. Local fixture execution times are not external API latency. No performance uplift or production reliability claim follows from these fixture pass counts.
 - The local server is a demonstration server, not a hosted multi-user service. It binds to loopback and exposes fixed read-only routes.
 
-See [roadmap](docs/ROADMAP.md) for planned work and [progress](docs/PROGRESS.md) for checks actually executed. Development is on feature branches while the foundation PR remains unmerged; `main` is not automatically updated.
+See [roadmap](docs/ROADMAP.md) for planned work and [progress](docs/PROGRESS.md) for checks actually executed. The earlier portfolio MVP was merged into `main` externally. These crash/property/deployment additions remain on a feature branch for review; this work does not merge into `main`.
+
+## Run the generated invariant tests
+
+The application needs no third-party runtime dependencies. Property tests are an
+explicit optional development dependency:
+
+```sh
+python -m venv .venv-testing
+.venv-testing/bin/python -m pip install -r requirements-test.txt
+.venv-testing/bin/python -m agentlab.verify --properties
+```
+
+See [release notes](docs/RELEASE.md) for evidence-backed resume wording. The
+configured GitHub Actions matrix requests these property checks on every version;
+remote green CI and a live Pages URL remain unverified from this environment.

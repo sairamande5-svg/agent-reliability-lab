@@ -21,12 +21,14 @@ class RegressionTests(unittest.TestCase):
                 check(report)
 
     def test_gate_rejects_extra_calls_duplicate_writes_and_lost_resume(self):
-        for field in ('calls', 'writes', 'resume'):
+        for field in ('calls', 'writes', 'resume', 'process_crash'):
             report = deepcopy(self.report)
             if field == 'calls':
                 report['lookup']['results'][0]['attempts'] += 1
             elif field == 'writes':
                 report['support']['results'][0]['final_state']['tickets'].append(('extra', 'ticket'))
+            elif field == 'process_crash':
+                report['process_crash']['results'][0]['identity_preserved'] = False
             else:
                 report['durable']['checkpoint']['status'] = 'pending'
             with self.assertRaises(ValueError):

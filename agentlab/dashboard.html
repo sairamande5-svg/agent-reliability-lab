@@ -9,11 +9,11 @@
 </head>
 <body><main>
 <header><div class="brand">◈ Agent Reliability Lab</div><span class="badge">OFFLINE EXPERIMENT EXPLORER</span></header>
-<section class="hero"><p class="eyebrow">Controlled failures. Inspectable recovery.</p><h1>Did the action actually succeed?</h1><p>Compare scripted policies under tool failures. Inspect every attempt, then verify the final database state. Start with a lost acknowledgment: the ticket exists, but the caller never received confirmation.</p><button id="jump">Explore the lost acknowledgment ↓</button></section>
+<section class="hero"><p class="eyebrow">Controlled failures. Inspectable recovery.</p><h1>Did the action actually succeed?</h1><p>Compare scripted policies under tool failures. Inspect every attempt, then verify the final database state. Start with a lost acknowledgment: the ticket exists, but the caller never received confirmation.</p><button id="jump">Explore the lost acknowledgment ↓</button> <button id="process-jump">Inspect real process-kill recovery ↓</button></section>
 <div class="grid" id="metrics"></div>
 <p class="note">These results come from synthetic fixtures and scripted policies, not live AI models. Local execution time is not API latency. Token usage and cost are unavailable; no paid APIs were called.</p>
 <h2>Saved-run comparison</h2><div class="toolbar"><label>Active run <select id="active-run"></select></label><label>Compare with <select id="reference-run"></select></label></div><div id="comparison"></div><p class="sub">History retains the latest 20 reports in this export. Local timings describe fixture execution only; cost and token usage are unavailable.</p>
-<h2>Experiment evidence</h2><div class="toolbar"><label>Suite <select id="suite"><option value="lookup">Order lookup · policy comparison</option><option value="support">Support writes · crash boundaries</option><option value="replay">Offline replay · heldout fixtures</option><option value="durable">Durable recovery · checkpoint resume</option></select></label><label>Outcome <select id="outcome"><option value="all">All outcomes</option><option value="pass">Passed</option><option value="fail">Failed</option></select></label><button id="download">Download evidence JSON</button></div>
+<h2>Experiment evidence</h2><div class="toolbar"><label>Suite <select id="suite"><option value="lookup">Order lookup · policy comparison</option><option value="support">Support writes · crash boundaries</option><option value="replay">Offline replay · heldout fixtures</option><option value="process">Real process kills · WAL recovery</option><option value="durable">Durable recovery · checkpoint resume</option></select></label><label>Outcome <select id="outcome"><option value="all">All outcomes</option><option value="pass">Passed</option><option value="fail">Failed</option></select></label><button id="download">Download evidence JSON</button></div>
 <p id="description"></p><div id="results" aria-live="polite"></div>
 <footer>Reproducible with Python 3.11+ · Standard library only · Database state checked independently · No credentials required</footer>
 </main>
@@ -44,6 +44,9 @@ function render(){
  }else if(suite==='support'){
   document.getElementById('description').textContent='Each fixture starts with an isolated synthetic order. A stable action ID survives retries; the independent verifier inspects one final ticket and duplicate-event evidence.';
   rows=report.support.results.map(r=>({name:r.scenario,label:'synthetic support',success:r.final_state.success,trace:r.trace,evidence:r.final_state}));
+ }else if(suite==='process'){
+  document.getElementById('description').textContent=report.process_crash ? 'Real workers were killed at synchronized boundaries, then resumed in new processes. Inspect exit signals, rollback before commit, preserved action identity, and independent final-state evidence. SQLite WAL/FULL; this does not simulate host power loss.' : 'This saved report predates process-kill experiments.';
+  rows=report.process_crash ? report.process_crash.results.map(r=>({name:r.scenario,label:`${r.kill_method} · ${r.journal_mode.toUpperCase()} · integrity ${r.integrity_check}`,success:r.success,trace:r.trace,evidence:r})) : [];
  }else if(suite==='replay'){
   document.getElementById('description').textContent=report.replay ? report.replay.limitations : 'This saved run predates offline replay support.';
   rows=report.replay ? report.replay.results.map(r=>({name:r.scenario,label:'authored offline replay',success:r.success,trace:r.trace,evidence:r})) : [];
@@ -82,5 +85,6 @@ active.addEventListener('change',()=>{report=history[active.value];updateMetrics
 updateMetrics();compare();
 document.getElementById('suite').addEventListener('change',render);document.getElementById('outcome').addEventListener('change',render);
 document.getElementById('jump').addEventListener('click',()=>{document.getElementById('suite').value='durable';document.getElementById('outcome').value='all';render();document.getElementById('suite').scrollIntoView({behavior:'smooth',block:'center'});});
+document.getElementById('process-jump').addEventListener('click',()=>{document.getElementById('suite').value='process';document.getElementById('outcome').value='all';render();document.getElementById('suite').scrollIntoView({behavior:'smooth',block:'center'});});
 document.getElementById('download').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='agent-reliability-evidence.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});render();
 </script></body></html>

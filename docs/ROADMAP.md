@@ -25,3 +25,9 @@ Completion: clean-checkout offline run succeeds; durable recovery and idempotenc
 
 
 Offline portfolio scope: see [RELEASE.md](RELEASE.md) for 16/20 verified scope checks and the explicit remaining work. No full-roadmap completion claim is made.
+
+## Approved portfolio hardening additions
+- Real subprocess kills at four write/acknowledgment boundaries with WAL/FULL and independent recovery verification: implemented and locally verified.
+- Hypothesis state-machine/reference-model and generated schedule/budget checks: implemented and locally verified.
+- Static Pages artifact, publication workflow, and repository-subpath browser acceptance: implemented and locally verified; Pages activation and a confirmed public URL remain blocked by GitHub API/proxy access.
+These additions do not introduce paid model APIs or change the outstanding live-provider scope.

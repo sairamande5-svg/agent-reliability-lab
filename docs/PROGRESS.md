@@ -1,10 +1,11 @@
 # Progress
 
 ## Current release
-Offline portfolio MVP on `codex/reliability-portfolio`, stacked on the unmerged
-foundation and subsequent feature branches. Nothing merged into main. See
-[RELEASE.md](RELEASE.md) for the 16/20 scope checklist, demo, and resume wording.
-This is scope tracking, not a model-quality or production-readiness score.
+Portfolio hardening on `codex/reliability-public-demo`: actual process-kill
+recovery, Hypothesis-generated invariant tests, and a verified static Pages build.
+The earlier offline MVP was merged externally into main in PR #6. These additions
+are pending review; this work does not merge main. See [RELEASE.md](RELEASE.md)
+and [DEPLOYMENT.md](DEPLOYMENT.md) for evidence, demo instructions, and resume wording.
 
 ## Implemented
 - Six versioned lookup fixtures, strict scenario validation, source fingerprints,
@@ -27,34 +28,35 @@ This is scope tracking, not a model-quality or production-readiness score.
   architecture diagram, real screenshot, demo walkthrough, and resume notes.
 
 ## Validation executed
-- `python -m agentlab.verify --output artifacts/portfolio`: all 41 tests passed;
-  fresh offline experiments completed and versioned regression gate passed.
+- `.venv-testing/bin/python -m agentlab.verify --properties`: all 47 standard tests
+  and three Hypothesis property tests passed; fresh experiments and baseline v2 passed.
 - Lookup: scripted baseline 1/6, retry/validate 4/6. Support writes: 4/4.
   Offline replay: 2/4; false-finish and exhausted-budget fixtures intentionally fail.
-- `python -m tools.browser_smoke --screenshot docs/images/dashboard.png`:
+  Actual process-kill recovery: 4/4, with SIGKILL exit status verified on Linux.
+- `python -m tools.browser_smoke --static --screenshot docs/images/dashboard.png`:
   passed active/reference selection, lookup and replay filters, recovery evidence,
-  JSON download, mobile overflow check, and zero JavaScript errors.
-- Clean staged-source export: full verification and browser acceptance passed
-  without the original checkout's ignored artifacts or databases.
+  actual process-kill evidence, JSON download, mobile overflow check, and zero JavaScript errors.
+- Clean staged-source export: all standard/property tests, regression gate, and
+  static build passed without the original checkout's artifacts or databases.
+  Browser acceptance passed separately against freshly generated static content.
 - `git diff --check`: passed.
 
 ## Limits and remaining work
 No live models, paid APIs, production data, or cost/token measurements. Replay
 transcripts are authored synthetic fixtures, not model recordings; the heldout
 split is not a statistical model evaluation. Local timing is not API latency.
-Crash exceptions do not establish OS/power-loss recovery; execution is single
+Actual worker termination is verified at synchronized boundaries, not host power loss; execution is single
 executor per database, with no distributed leases. The support model permits one
 ticket per order. Exports/API snapshots show at most the most recent 20 runs.
 
 Remote GitHub Actions results have not been observed. API requests/PR creation
 have returned Forbidden while native Git push works. Workflow configuration and
 local checks must not be described as remote CI passing. Live-provider integration,
-actual held-out model evaluation, and reviewed default-branch publication remain
-outstanding. No public deployment was performed.
+actual held-out model evaluation, and reviewed publication of the new additions
+remain outstanding. Pages activation and live-site confirmation are blocked by API/proxy access.
 
-Next: observe remote CI after access is restored, review and publish the existing
-product branches, then add opt-in live adapters only with an explicit budget and
-credentials. No further feature expansion is needed for the offline resume demo.
+Next: enable Pages in repository settings and observe deployment/CI, then review
+the new feature branch. Opt-in live adapters still require an explicit budget and credentials.
 
 ## Process-crash testing addition
 - Added SQLite WAL/FULL write connections and boundary instrumentation around writes and policy acknowledgment.
@@ -67,3 +69,12 @@ credentials. No further feature expansion is needed for the offline resume demo.
 - `agentlab.verify --properties` passed all 44 standard tests, all three generated property tests, and the existing regression gate. The optional test environment also passed `pip check`.
 - Added explicit property verification to the CI matrix. Missing Hypothesis fails an explicitly requested property run; no silent skips or inflated example counts.
 - Added PROPERTY_TESTING.md with settings, invariants, reproducibility, and limits. Actual process kills remain separate from the generated exception schedules.
+
+## Static demonstration and evidence addition
+- Dashboard now exposes the four actual process-kill scenarios, including signals, WAL journal mode, integrity checks, before-resume state, and final-state evidence.
+- Added baseline v2 for process-kill invariants. Confirmed every pre-existing behavioral expectation exactly matches retained v1; no failures were weakened or hidden.
+- Added a static-only builder with two fresh sample runs, source-SHA metadata, public-file allowlist, and checksums. Existing private files cause a refusal; databases are not published or deleted.
+- All 47 standard tests and three Hypothesis property tests passed, along with the regression gate. Static browser acceptance passed under `/agent-reliability-lab/` with new process-kill evidence, filters, export, and mobile checks. Updated the real screenshot.
+- Added a Pages build/deploy workflow and deployment instructions. Both workflow YAML files parse locally. Remote CI/deployment has not been observed.
+- Discovered the previous portfolio release was merged externally into main (PR #6); these additions stay on `codex/reliability-public-demo` pending review. No merge was performed here.
+- GitHub Pages API returns Forbidden; access to the Pages hostname fails with a proxy 403. Pages activation and confirmation of a public demo remain external blockers. The artifact is built and locally verified, not claimed live.

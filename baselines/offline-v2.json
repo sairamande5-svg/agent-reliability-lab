@@ -1,0 +1,330 @@
+{
+  "durable": {
+    "attempts": 2,
+    "final_state": {
+      "action_count": 1,
+      "duplicate_events": [
+        "replayed_action"
+      ],
+      "orders": [
+        [
+          "order-001",
+          "shipped"
+        ]
+      ],
+      "success": true,
+      "tickets": [
+        [
+          "order-001",
+          "missing parcel"
+        ]
+      ]
+    },
+    "status": "completed"
+  },
+  "lookup": {
+    "baseline/healthy": {
+      "attempts": 1,
+      "success": true
+    },
+    "baseline/malformed_then_success": {
+      "attempts": 1,
+      "success": false
+    },
+    "baseline/persistent_timeout": {
+      "attempts": 1,
+      "success": false
+    },
+    "baseline/rate_limit_then_success": {
+      "attempts": 1,
+      "success": false
+    },
+    "baseline/transient_timeout": {
+      "attempts": 1,
+      "success": false
+    },
+    "baseline/wrong_order": {
+      "attempts": 1,
+      "success": false
+    },
+    "retry_validate/healthy": {
+      "attempts": 1,
+      "success": true
+    },
+    "retry_validate/malformed_then_success": {
+      "attempts": 2,
+      "success": true
+    },
+    "retry_validate/persistent_timeout": {
+      "attempts": 3,
+      "success": false
+    },
+    "retry_validate/rate_limit_then_success": {
+      "attempts": 2,
+      "success": true
+    },
+    "retry_validate/transient_timeout": {
+      "attempts": 2,
+      "success": true
+    },
+    "retry_validate/wrong_order": {
+      "attempts": 3,
+      "success": false
+    }
+  },
+  "lookup_source": "e9ce8a3a7899ffcb3a5785d1d82a29cf653628338c8f9cdafe59c6d391ba2287",
+  "process_crash": {
+    "after_ack": {
+      "before_resume": {
+        "action_count": 1,
+        "duplicate_events": [],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": true,
+        "tickets": [
+          [
+            "order-001",
+            "missing parcel"
+          ]
+        ]
+      },
+      "final_state": {
+        "action_count": 1,
+        "duplicate_events": [
+          "replayed_action"
+        ],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": true,
+        "tickets": [
+          [
+            "order-001",
+            "missing parcel"
+          ]
+        ]
+      },
+      "identity_preserved": true,
+      "integrity_check": "ok",
+      "journal_mode": "wal",
+      "success": true
+    },
+    "before_ack": {
+      "before_resume": {
+        "action_count": 1,
+        "duplicate_events": [],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": true,
+        "tickets": [
+          [
+            "order-001",
+            "missing parcel"
+          ]
+        ]
+      },
+      "final_state": {
+        "action_count": 1,
+        "duplicate_events": [
+          "replayed_action"
+        ],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": true,
+        "tickets": [
+          [
+            "order-001",
+            "missing parcel"
+          ]
+        ]
+      },
+      "identity_preserved": true,
+      "integrity_check": "ok",
+      "journal_mode": "wal",
+      "success": true
+    },
+    "before_write": {
+      "before_resume": {
+        "action_count": 0,
+        "duplicate_events": [],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": false,
+        "tickets": []
+      },
+      "final_state": {
+        "action_count": 1,
+        "duplicate_events": [],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": true,
+        "tickets": [
+          [
+            "order-001",
+            "missing parcel"
+          ]
+        ]
+      },
+      "identity_preserved": true,
+      "integrity_check": "ok",
+      "journal_mode": "wal",
+      "success": true
+    },
+    "during_write": {
+      "before_resume": {
+        "action_count": 0,
+        "duplicate_events": [],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": false,
+        "tickets": []
+      },
+      "final_state": {
+        "action_count": 1,
+        "duplicate_events": [],
+        "orders": [
+          [
+            "order-001",
+            "shipped"
+          ]
+        ],
+        "success": true,
+        "tickets": [
+          [
+            "order-001",
+            "missing parcel"
+          ]
+        ]
+      },
+      "identity_preserved": true,
+      "integrity_check": "ok",
+      "journal_mode": "wal",
+      "success": true
+    }
+  },
+  "replay": {
+    "heldout-budget": {
+      "budget_exhausted": true,
+      "success": false,
+      "tool_calls": 3
+    },
+    "heldout-false-finish": {
+      "budget_exhausted": false,
+      "success": false,
+      "tool_calls": 0
+    },
+    "heldout-happy": {
+      "budget_exhausted": false,
+      "success": true,
+      "tool_calls": 1
+    },
+    "heldout-lost-ack": {
+      "budget_exhausted": false,
+      "success": true,
+      "tool_calls": 2
+    }
+  },
+  "replay_source": "379e58194d00a0696eb871950cb1cbff56e38046d4aba9d1548e27a3ac5e3b09",
+  "schema_version": 2,
+  "support": {
+    "after_ack": {
+      "action_count": 1,
+      "duplicate_events": [
+        "replayed_action"
+      ],
+      "orders": [
+        [
+          "order-001",
+          "shipped"
+        ]
+      ],
+      "success": true,
+      "tickets": [
+        [
+          "order-001",
+          "missing parcel"
+        ]
+      ]
+    },
+    "before_ack": {
+      "action_count": 1,
+      "duplicate_events": [
+        "replayed_action"
+      ],
+      "orders": [
+        [
+          "order-001",
+          "shipped"
+        ]
+      ],
+      "success": true,
+      "tickets": [
+        [
+          "order-001",
+          "missing parcel"
+        ]
+      ]
+    },
+    "before_write": {
+      "action_count": 1,
+      "duplicate_events": [],
+      "orders": [
+        [
+          "order-001",
+          "shipped"
+        ]
+      ],
+      "success": true,
+      "tickets": [
+        [
+          "order-001",
+          "missing parcel"
+        ]
+      ]
+    },
+    "none": {
+      "action_count": 1,
+      "duplicate_events": [],
+      "orders": [
+        [
+          "order-001",
+          "shipped"
+        ]
+      ],
+      "success": true,
+      "tickets": [
+        [
+          "order-001",
+          "missing parcel"
+        ]
+      ]
+    }
+  }
+}

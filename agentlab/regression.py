@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-BASELINE = Path(__file__).resolve().parent.parent / 'baselines' / 'offline-v1.json'
+BASELINE = Path(__file__).resolve().parent.parent / 'baselines' / 'offline-v2.json'
 
 
 def signature(report):
@@ -15,7 +15,10 @@ def signature(report):
             result[name] = {field: row[field] for field in fields}
         return result
     return {
-        'schema_version': 1,
+        'schema_version': 2,
+        'process_crash': {r['scenario']: {field: r[field] for field in
+            ('success', 'journal_mode', 'integrity_check', 'identity_preserved', 'before_resume', 'final_state')}
+            for r in report['process_crash']['results']},
         'lookup_source': report['lookup']['source_sha256'],
         'lookup': rows(report['lookup']['results'], lambda r: r['policy'] + '/' + r['scenario'], ('success', 'attempts')),
         'support': {r['scenario']: r['final_state'] for r in report['support']['results']},
