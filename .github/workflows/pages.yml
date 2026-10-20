@@ -1,0 +1,46 @@
+name: Verified static demo
+on:
+  push:
+    branches: [main, codex/reliability-public-demo]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned optional test tooling
+        run: |
+          python -m pip install -r requirements-test.txt playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Verify tests, properties, and regression baseline
+        run: python -m agentlab.verify --properties
+      - name: Static browser acceptance under the repository URL path
+        run: python -m tools.browser_smoke --static
+      - name: Build public synthetic evidence only
+        run: python -m tools.build_site --source-commit "$GITHUB_SHA"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: artifacts/site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure existing Pages site
+        uses: actions/configure-pages@v5
+      - name: Deploy static evidence explorer
+        id: deployment
+        uses: actions/deploy-pages@v4

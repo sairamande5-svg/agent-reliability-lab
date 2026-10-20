@@ -26,7 +26,8 @@ def main():
     print(json.dumps({'regression': 'passed', 'report': str(args.output / 'report.json'),
                       'dashboard': str(args.output / 'index.html'),
                       'lookup': report['lookup']['summary'], 'support': report['support']['summary'],
-                      'replay': report['replay']['summary']}, indent=2))
+                      'replay': report['replay']['summary'],
+                      'process_crash': report['process_crash']['summary']}, indent=2))
 
 
 if __name__ == '__main__':

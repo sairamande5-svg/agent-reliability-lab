@@ -8,6 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from .durable import DurableRun
+from .process_crash import benchmark as process_benchmark
 from .history import RunStore, validate_id
 from .adapters import benchmark as replay_benchmark
 from .runner import benchmark as lookup_benchmark
@@ -43,7 +44,7 @@ def durable_demo():
 def build_report():
     return {'schema_version': 1, 'kind': 'scripted-offline-demo',
             'lookup': lookup_benchmark(), 'support': support_benchmark(),
-            'durable': durable_demo(), 'replay': replay_benchmark()}
+            'durable': durable_demo(), 'replay': replay_benchmark(), 'process_crash': process_benchmark()}
 
 
 def render(report):
