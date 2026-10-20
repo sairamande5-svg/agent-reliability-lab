@@ -1,50 +1,57 @@
 # Progress
 
+## Current release
+Offline portfolio MVP on `codex/reliability-portfolio`, stacked on the unmerged
+foundation and subsequent feature branches. Nothing merged into main. See
+[RELEASE.md](RELEASE.md) for the 16/20 scope checklist, demo, and resume wording.
+This is scope tracking, not a model-quality or production-readiness score.
+
 ## Implemented
-- Milestone 1: six controlled fixtures, bounded baseline/retry policies, per-attempt JSON traces, independent outcome validation, and strict versioned/seeded scenario loading.
-- Milestone 2: dependency-free SQLite synthetic orders and support tickets, atomic ticket/action writes, payload-bound idempotency keys, replay detection, and duplicate-intent detection across different keys.
-- Explicit simulated crashes before writing, after commit before acknowledgment, and after acknowledgment. Reopening the database and retrying preserves one ticket and one stable action identity.
-- Independent read-only final-state checks reject incorrect or extra order/ticket state. A bounded offline stateful runner records traces and final-state evidence.
+- Six versioned lookup fixtures, strict scenario validation, source fingerprints,
+  deterministic seeded schedules, bounded scripted policies, and per-attempt traces.
+- SQLite synthetic orders/support tickets, atomic action writes, stable idempotency
+  keys, conflict handling, replay and duplicate-intent evidence.
+- Controlled exceptions before writing and on both sides of acknowledgment;
+  independent final-state grading with a separate read-only database connection.
+- SQLite intent/attempt checkpoints, executor reopen/resume, stable action identity,
+  bounded budgets, and exponential retry eligibility with fake-clock tests.
+- Provider-neutral decision protocol, allowlisted synthetic tool dispatcher,
+  authored offline replay, and a separate versioned heldout fixture split.
+- SQLite report history, validated immutable run IDs, fixed read-only APIs, visual
+  active/reference comparison, local elapsed-time and call-count evidence,
+  filters, expandable traces, JSON downloads, and a portable offline HTML report.
+- Versioned exact behavioral regression gate; tests prove extra calls, duplicate
+  writes, hidden expected failures, and lost resume completion are rejected.
+- One-command `python -m agentlab.verify`, GitHub Actions configuration for
+  Python 3.11–3.13 and optional browser acceptance, downloadable workflow artifacts,
+  architecture diagram, real screenshot, demo walkthrough, and resume notes.
 
 ## Validation executed
-- `python -m unittest discover -s tests -v`: all 23 tests passed locally.
-- `python -m agentlab.runner --output /tmp/reliability-lookup.json`: scripted baseline 1/6 and retry/validate 4/6.
-- `python -m agentlab.stateful_runner --output /tmp/reliability-stateful.json`: 4/4 scripted fixtures passed independent final-database checks.
-- `python -m agentlab.runner --scenarios scenarios/seeded-v1.json --seed 7 --output /tmp/reliability-seeded.json`: scripted baseline 0/2 and retry/validate 1/2.
+- `python -m agentlab.verify --output artifacts/portfolio`: all 41 tests passed;
+  fresh offline experiments completed and versioned regression gate passed.
+- Lookup: scripted baseline 1/6, retry/validate 4/6. Support writes: 4/4.
+  Offline replay: 2/4; false-finish and exhausted-budget fixtures intentionally fail.
+- `python -m tools.browser_smoke --screenshot docs/images/dashboard.png`:
+  passed active/reference selection, lookup and replay filters, recovery evidence,
+  JSON download, mobile overflow check, and zero JavaScript errors.
+- Clean staged-source export: full verification and browser acceptance passed
+  without the original checkout's ignored artifacts or databases.
 - `git diff --check`: passed.
-- New tests exercise write replay, conflicting identities/payloads, duplicate intent, invalid inputs, all three crash boundaries, tool reopening, deliberately corrupted final state, and the stateful experiment.
 
-## Limitations
-No remote CI or live model evaluation has run. Policies and data are synthetic scripted fixtures, not production or model-quality evidence. Crashes are injected Python exceptions at defined boundaries, not OS/process kills or power failures. SQLite business state persists but policy action identity remains in memory; no durable checkpoints or automatic restart/resume yet. The support model permits one ticket per order; different reasons conflict. Duplicate telemetry records retries, not external real-world actions. The stateful runner uses temporary databases and retains their inspected state in JSON. Existing lookup scenario JSON remains separate from the fixed stateful fixtures.
+## Limits and remaining work
+No live models, paid APIs, production data, or cost/token measurements. Replay
+transcripts are authored synthetic fixtures, not model recordings; the heldout
+split is not a statistical model evaluation. Local timing is not API latency.
+Crash exceptions do not establish OS/power-loss recovery; execution is single
+executor per database, with no distributed leases. The support model permits one
+ticket per order. Exports/API snapshots show at most the most recent 20 runs.
 
-## Next
-Milestone 3: SQLite policy checkpoints and restart/resume with stable action identity, bounded backoff, and fake-clock tests. Verify resumed execution never duplicates business writes.
+Remote GitHub Actions results have not been observed. API requests/PR creation
+have returned Forbidden while native Git push works. Workflow configuration and
+local checks must not be described as remote CI passing. Live-provider integration,
+actual held-out model evaluation, and reviewed default-branch publication remain
+outstanding. No public deployment was performed.
 
-Milestone 2 is developed on `codex/reliability-milestone-2`, based on the unmerged `codex/reliability-foundation` branch. Default-branch merges await user authorization. Offline work needs no API keys and uses no paid APIs.
-
-## Durable execution increment
-- Added SQLite policy intent/action identity, attempt-start checkpoints, bounded exponential retry eligibility, and reopen/resume. A crash after tool commit retains the same action ID on retry.
-- All 26 unittest tests pass, including fake-clock backoff, restart at every injected boundary, exhausted budgets, and conflicting run identity.
-- Single executor per database only. Crash injection remains controlled exceptions; no distributed leases or OS/power-loss guarantees. Unknown attempts consume budget even if the process stopped before calling the tool.
-- Next: bring persisted evidence into a visual offline demonstration. Provider adapters remain an explicit outstanding milestone.
-
-## Visual product increment
-- Added `python -m agentlab.dashboard`: freshly executed lookup, support-write, and durable-recovery experiments exported as a standalone HTML explorer and JSON evidence.
-- Added comparison cards, suite/outcome filters, attempt timelines, expandable final-state evidence, and evidence download. Included a real browser screenshot and an expanded front-page README with a two-minute walkthrough.
-- Added fixed read-only HTTP routes and defensive rendering: escaped JSON embedding, text-only rendering of trace values, no user-controlled filesystem mapping.
-- All 29 unittest tests passed. Browser validation in the installed Chromium/Playwright checked 12 initial lookup cards, 7 failed cards, recovery navigation, replay evidence, JSON download, 4 support fixtures, 390px layout without horizontal overflow, and zero JavaScript errors.
-- Initial export test exposed tuple/list JSON round-trip differences; comparison now uses the JSON representation. File navigation was disallowed by this machine's browser policy; browser checks used the supported local HTTP server.
-- Milestone 5 has an offline demonstrable slice; it is not declared fully complete. Cross-run history and latency/cost comparison remain limited; missing cost is explicitly unavailable. Milestone 4 provider/replay adapters remain outstanding. No remote CI, public hosting, live models, or paid APIs were used.
-- Next: provider-neutral offline replay and held-out fixtures, then cross-run history and CI/release validation. Continue tested feature-branch pushes without merging main.
-
-## Offline adapter increment
-- Added a provider-neutral decision protocol, bounded synthetic tool dispatcher, authored replay adapter, and separate heldout replay fixture split with source fingerprints.
-- All 35 tests passed; `python -m agentlab.adapters` completed with 2/4 fixtures passing. False-finish and exhausted-budget fixtures intentionally remain failures; no model metrics are claimed.
-- Tests cover unsupported tool rejection, budget enforcement, replay idempotency, independent grading, adapter mutation isolation, and invalid inputs.
-- No live provider implementation, credentials, or paid API calls. See ADAPTERS.md for the supported contract and precise heldout limitation.
-
-## Saved results increment
-- Persisted reports in SQLite with validated immutable run IDs, bounded exports of the latest 20 runs, and fixed list/detail API routes.
-- Dashboard can switch active/reference runs, compare lookup calls and local elapsed time, and inspect replay successes and intentional failures separately. Cost stays unavailable.
-- All 38 unittest tests passed. The committed optional browser acceptance command passed for history selection, comparison, filtering, recovery evidence, replay failures, download, mobile layout, and JavaScript errors. Screenshot refreshed from that run.
-- Remaining release work: versioned regression gate, GitHub Actions workflow, clean-checkout verification, and portfolio documentation. Live providers remain deferred.
+Next: observe remote CI after access is restored, review and publish the existing
+product branches, then add opt-in live adapters only with an explicit budget and
+credentials. No further feature expansion is needed for the offline resume demo.
