@@ -6,7 +6,7 @@
 2. Stateful tool environment (complete)
    - Synthetic order/support database; idempotent writes; duplicate-action detection.
    - Inject crashes before and after write acknowledgment. Verify final state, not returned text.
-3. Durable execution
+3. Durable execution (complete; single executor)
    - SQLite checkpoints and restart/resume; bounded backoff with fake-clock tests.
    - Verify resumed runs preserve action identity and do not duplicate writes.
 4. Real agent adapter

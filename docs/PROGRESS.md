@@ -21,3 +21,9 @@ No remote CI or live model evaluation has run. Policies and data are synthetic s
 Milestone 3: SQLite policy checkpoints and restart/resume with stable action identity, bounded backoff, and fake-clock tests. Verify resumed execution never duplicates business writes.
 
 Milestone 2 is developed on `codex/reliability-milestone-2`, based on the unmerged `codex/reliability-foundation` branch. Default-branch merges await user authorization. Offline work needs no API keys and uses no paid APIs.
+
+## Durable execution increment
+- Added SQLite policy intent/action identity, attempt-start checkpoints, bounded exponential retry eligibility, and reopen/resume. A crash after tool commit retains the same action ID on retry.
+- All 26 unittest tests pass, including fake-clock backoff, restart at every injected boundary, exhausted budgets, and conflicting run identity.
+- Single executor per database only. Crash injection remains controlled exceptions; no distributed leases or OS/power-loss guarantees. Unknown attempts consume budget even if the process stopped before calling the tool.
+- Next: bring persisted evidence into a visual offline demonstration. Provider adapters remain an explicit outstanding milestone.
