@@ -13,7 +13,7 @@
    - Provider-neutral adapter and offline replay adapter first; opt-in live provider integration.
    - Fixed task budgets; token/cost metadata only when actually available; held-out scenarios.
    - Keep scripted-policy results separate from model-driven results.
-5. Results API and dashboard
+5. Results API and dashboard (offline demo implemented; cross-run history outstanding)
    - Compare runs, inspect attempt traces, show failures and latency/cost tradeoffs.
    - Escape untrusted trace content. Validate filesystem identifiers and API inputs.
 6. CI and portfolio release
