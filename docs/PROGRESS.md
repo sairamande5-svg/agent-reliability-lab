@@ -36,3 +36,9 @@ Milestone 2 is developed on `codex/reliability-milestone-2`, based on the unmerg
 - Initial export test exposed tuple/list JSON round-trip differences; comparison now uses the JSON representation. File navigation was disallowed by this machine's browser policy; browser checks used the supported local HTTP server.
 - Milestone 5 has an offline demonstrable slice; it is not declared fully complete. Cross-run history and latency/cost comparison remain limited; missing cost is explicitly unavailable. Milestone 4 provider/replay adapters remain outstanding. No remote CI, public hosting, live models, or paid APIs were used.
 - Next: provider-neutral offline replay and held-out fixtures, then cross-run history and CI/release validation. Continue tested feature-branch pushes without merging main.
+
+## Offline adapter increment
+- Added a provider-neutral decision protocol, bounded synthetic tool dispatcher, authored replay adapter, and separate heldout replay fixture split with source fingerprints.
+- All 35 tests passed; `python -m agentlab.adapters` completed with 2/4 fixtures passing. False-finish and exhausted-budget fixtures intentionally remain failures; no model metrics are claimed.
+- Tests cover unsupported tool rejection, budget enforcement, replay idempotency, independent grading, adapter mutation isolation, and invalid inputs.
+- No live provider implementation, credentials, or paid API calls. See ADAPTERS.md for the supported contract and precise heldout limitation.
