@@ -34,7 +34,7 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn('innerHTML', html)
 
     def test_fixed_read_only_api_rejects_unknown_and_traversal_paths(self):
-        report = {'kind': 'test'}
+        report = {'kind': 'test', 'history': {'saved-run': {'value': 7}}}
         server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, report=report))
         thread = Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -43,7 +43,11 @@ class DashboardTests(unittest.TestCase):
             with urlopen(base + '/api/report') as response:
                 self.assertEqual(json.load(response), report)
                 self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff')
-            for path in ('/../README.md', '/%2e%2e/README.md', '/api/report?file=README.md', '/unknown'):
+            with urlopen(base + '/api/runs') as response:
+                self.assertEqual(json.load(response), ['saved-run'])
+            with urlopen(base + '/api/runs/saved-run') as response:
+                self.assertEqual(json.load(response), {'value': 7})
+            for path in ('/api/runs/missing', '/api/runs/../secret', '/api/runs/x?file=README.md', '/../README.md', '/%2e%2e/README.md', '/api/report?file=README.md', '/unknown'):
                 with self.assertRaises(HTTPError) as error:
                     urlopen(base + path)
                 self.assertEqual(error.exception.code, 404)

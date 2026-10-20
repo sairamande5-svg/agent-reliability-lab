@@ -14,9 +14,25 @@ The central question: **if a tool commits an action but the acknowledgment is lo
 - **Inspect safe writes.** Create synthetic support tickets in SQLite. Repeated action IDs replay the same ticket; a new ID for the same intent records a duplicate attempt without creating another ticket. Conflicting payloads fail explicitly.
 - **Recover across executor restarts.** Persist intent and action identity before execution. Reopen the checkpoint after a simulated crash, respect bounded retry eligibility, and resume with the same action ID.
 - **Verify outcomes independently.** Inspect persisted order/ticket contents through a separate read-only connection. A reassuring tool response alone cannot make a stateful task pass.
+- **Replay adapter decisions.** Exercise a provider-neutral interface with a separate versioned offline transcript suite, fixed decision budgets, and intentional false-finish/budget failures. See [adapter contract](docs/ADAPTERS.md).
 - **Explore visual evidence.** Filter fixtures, expand attempt timelines and final-state evidence, and download a JSON report. Export a standalone HTML dashboard for a demo or portfolio walkthrough.
 
 This is currently an **offline engineering testbed with scripted policies and synthetic data**. It does not measure live model quality, real customer outcomes, API latency, or model cost. No credentials, model calls, paid APIs, or third-party runtime packages are needed.
+
+## Portfolio release status
+
+The offline MVP is demonstrable, with **41 automated tests**, browser acceptance
+checks, persisted run comparison, offline replay, and a versioned regression gate.
+The [release checklist](docs/RELEASE.md) records **16/20 scope checks complete**;
+remote CI, live-provider work, and default-branch publication remain pending.
+This percentage describes that checklist, not product quality or model performance.
+
+```sh
+python -m agentlab.verify
+```
+
+This single command tests the project, runs fresh experiments, checks regressions,
+and exports a portable dashboard. See [release and resume notes](docs/RELEASE.md).
 
 ## Run the visual demo
 
@@ -35,7 +51,7 @@ For a portable report without starting a server:
 python -m agentlab.dashboard --output artifacts/demo
 ```
 
-Open the generated `index.html` in a browser that permits local HTML files. The report embeds its evidence and has no CDN, font, network, or server dependency. The optional server exposes the same evidence through `GET /api/report`; it does not execute arbitrary tools or serve arbitrary filesystem paths.
+Open the generated `index.html` in a browser that permits local HTML files. The report embeds its evidence and has no CDN, font, network, or server dependency. Saved evidence persists in `artifacts/demo/runs.sqlite`. Generate another report to compare active and reference runs; use `--run-id NAME` for an explicit unique identity. The optional server exposes the same evidence through `GET /api/report`, `GET /api/runs`, and `GET /api/runs/ID`; it does not execute arbitrary tools or serve arbitrary filesystem paths.
 
 ### A two-minute walkthrough
 
@@ -71,6 +87,7 @@ Crash injection has three boundaries: `before_write` leaves business state untou
 python -m agentlab.runner --output artifacts/benchmark.json
 python -m agentlab.runner --scenarios scenarios/seeded-v1.json --seed 7 --output artifacts/seeded.json
 python -m agentlab.stateful_runner --output artifacts/stateful.json
+python -m agentlab.adapters --output artifacts/replay.json
 ```
 
 The stateful runner uses isolated temporary databases. Its report retains inspected final-state evidence; the databases themselves are removed after the run. `SupportTools` and `DurableRun` also accept explicit database paths for application-level use.
@@ -79,7 +96,7 @@ The stateful runner uses isolated temporary databases. Its report retains inspec
 
 - Controlled boundary crashes are Python exceptions, not process kills, power failures, or production infrastructure failures.
 - Durable execution supports one executor per database. Distributed leases and concurrent policy execution are not implemented.
-- The dashboard compares the built-in scripted policies and fixtures. Provider adapters, offline model replay, held-out model evaluations, and opt-in live integration remain outstanding.
+- The dashboard compares scripted policies and authored offline replays, with persisted run history. The provider-neutral interface is implemented; live provider integration and actual held-out model evaluation remain outstanding.
 - Cost and token metadata are unavailable. Local fixture execution times are not external API latency. No performance uplift or production reliability claim follows from these fixture pass counts.
 - The local server is a demonstration server, not a hosted multi-user service. It binds to loopback and exposes fixed read-only routes.
 

@@ -12,21 +12,28 @@
 <section class="hero"><p class="eyebrow">Controlled failures. Inspectable recovery.</p><h1>Did the action actually succeed?</h1><p>Compare scripted policies under tool failures. Inspect every attempt, then verify the final database state. Start with a lost acknowledgment: the ticket exists, but the caller never received confirmation.</p><button id="jump">Explore the lost acknowledgment ↓</button></section>
 <div class="grid" id="metrics"></div>
 <p class="note">These results come from synthetic fixtures and scripted policies, not live AI models. Local execution time is not API latency. Token usage and cost are unavailable; no paid APIs were called.</p>
-<h2>Experiment evidence</h2><div class="toolbar"><label>Suite <select id="suite"><option value="lookup">Order lookup · policy comparison</option><option value="support">Support writes · crash boundaries</option><option value="durable">Durable recovery · checkpoint resume</option></select></label><label>Outcome <select id="outcome"><option value="all">All outcomes</option><option value="pass">Passed</option><option value="fail">Failed</option></select></label><button id="download">Download evidence JSON</button></div>
+<h2>Saved-run comparison</h2><div class="toolbar"><label>Active run <select id="active-run"></select></label><label>Compare with <select id="reference-run"></select></label></div><div id="comparison"></div><p class="sub">History retains the latest 20 reports in this export. Local timings describe fixture execution only; cost and token usage are unavailable.</p>
+<h2>Experiment evidence</h2><div class="toolbar"><label>Suite <select id="suite"><option value="lookup">Order lookup · policy comparison</option><option value="support">Support writes · crash boundaries</option><option value="replay">Offline replay · heldout fixtures</option><option value="durable">Durable recovery · checkpoint resume</option></select></label><label>Outcome <select id="outcome"><option value="all">All outcomes</option><option value="pass">Passed</option><option value="fail">Failed</option></select></label><button id="download">Download evidence JSON</button></div>
 <p id="description"></p><div id="results" aria-live="polite"></div>
 <footer>Reproducible with Python 3.11+ · Standard library only · Database state checked independently · No credentials required</footer>
 </main>
 <script id="report" type="application/json">__REPORT_JSON__</script>
 <script>
 'use strict';
-const report=JSON.parse(document.getElementById('report').textContent);
+const exported=JSON.parse(document.getElementById('report').textContent);
+const history=exported.history || {[exported.run_id || 'current']:exported};
+let report=history[exported.run_id] || exported;
+const active=document.getElementById('active-run'),reference=document.getElementById('reference-run');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const metrics=document.getElementById('metrics');
+function updateMetrics(){
+metrics.replaceChildren();
 for(const [label,passed,total,detail] of [
  ['Single attempt',report.lookup.summary.baseline.passed,report.lookup.summary.baseline.total,'Scripted baseline · one call per task'],
  ['Retry + validate',report.lookup.summary.retry_validate.passed,report.lookup.summary.retry_validate.total,'Scripted policy · up to three calls per task'],
  ['Safe support writes',report.support.summary.passed,report.support.summary.total,'Final database state · four controlled fixtures']]){
  const card=el('section',undefined,'card');card.append(el('h3',label),el('div',`${passed} / ${total}`,'value'),el('div','fixtures passed','sub'));const bar=el('div',undefined,'bar');const fill=el('span');fill.style.width=`${100*passed/total}%`;bar.append(fill);card.append(bar,el('div',detail,'sub'));metrics.append(card);
+}
 }
 function render(){
  const suite=document.getElementById('suite').value,filter=document.getElementById('outcome').value;
@@ -37,6 +44,9 @@ function render(){
  }else if(suite==='support'){
   document.getElementById('description').textContent='Each fixture starts with an isolated synthetic order. A stable action ID survives retries; the independent verifier inspects one final ticket and duplicate-event evidence.';
   rows=report.support.results.map(r=>({name:r.scenario,label:'synthetic support',success:r.final_state.success,trace:r.trace,evidence:r.final_state}));
+ }else if(suite==='replay'){
+  document.getElementById('description').textContent=report.replay ? report.replay.limitations : 'This saved run predates offline replay support.';
+  rows=report.replay ? report.replay.results.map(r=>({name:r.scenario,label:'authored offline replay',success:r.success,trace:r.trace,evidence:r})) : [];
  }else{
   document.getElementById('description').textContent='The first executor stops after commit but before acknowledgment. A new executor reads persisted intent, waits until retry eligibility, and reuses the action ID. Single executor per database; simulated boundary exception, not an OS crash.';
   rows=[{name:'Lost acknowledgment → reopen → resume',label:report.durable.checkpoint.status,success:report.durable.final_state.success,trace:report.durable.checkpoint.trace,evidence:report.durable}];
@@ -49,6 +59,27 @@ function render(){
  }
  if(!target.children.length)target.append(el('p','No fixtures match this filter.'));
 }
+function compare(){
+ const other=history[reference.value] || report;
+ const box=document.getElementById('comparison');box.replaceChildren();
+ const grid=el('div',undefined,'grid');
+ for(const [title,current] of [['Active run',report],['Reference run',other]]){
+  const card=el('section',undefined,'card');
+  const calls=current.lookup.results.reduce((n,r)=>n+r.attempts,0);
+  const elapsed=current.lookup.results.reduce((n,r)=>n+r.elapsed_ms,0);
+  card.append(el('h3',title),el('div',`Lookup: ${current.lookup.summary.retry_validate.passed}/${current.lookup.summary.retry_validate.total} retry passes`),el('div',`${calls} lookup calls · ${elapsed.toFixed(2)} ms local execution`,'sub'),el('div',`Support: ${current.support.summary.passed}/${current.support.summary.total} · replay: ${current.replay ? current.replay.summary.passed+'/'+current.replay.summary.total : 'unavailable'}`,'sub'));
+  grid.append(card);
+ }
+ const delta=el('section',undefined,'card');
+ const currentCalls=report.lookup.results.reduce((n,r)=>n+r.attempts,0),previousCalls=other.lookup.results.reduce((n,r)=>n+r.attempts,0);
+ delta.append(el('h3','Observed difference'),el('div',`${currentCalls-previousCalls >= 0?'+':''}${currentCalls-previousCalls}`,'value'),el('div','lookup tool calls versus reference','sub'),el('div','No live-model cost measured','sub'));grid.append(delta);box.append(grid);
+}
+for(const id of Object.keys(history)){
+ for(const select of [active,reference]){const option=el('option',id);option.value=id;select.append(option);}
+}
+active.value=exported.run_id || Object.keys(history)[0];reference.value=Object.keys(history)[1] || active.value;
+active.addEventListener('change',()=>{report=history[active.value];updateMetrics();compare();render();});reference.addEventListener('change',compare);
+updateMetrics();compare();
 document.getElementById('suite').addEventListener('change',render);document.getElementById('outcome').addEventListener('change',render);
 document.getElementById('jump').addEventListener('click',()=>{document.getElementById('suite').value='durable';document.getElementById('outcome').value='all';render();document.getElementById('suite').scrollIntoView({behavior:'smooth',block:'center'});});
 document.getElementById('download').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='agent-reliability-evidence.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});render();

@@ -38,7 +38,7 @@ def evaluate(adapter: Adapter, task: dict, *, faults=(), budget=4):
     _integer(budget, 1, 20, 'budget')
     for key in ('order_id', 'reason'):
         SupportTools._text(task[key])
-    if any(fault not in FAULTS for fault in faults) or len(faults) > 20:
+    if any(not isinstance(fault, str) or fault not in FAULTS for fault in faults) or len(faults) > 20:
         raise ValueError('invalid fault schedule')
     trace = []
     tool_calls = 0
@@ -60,6 +60,7 @@ def evaluate(adapter: Adapter, task: dict, *, faults=(), budget=4):
                         break
                     if decision.tool == 'lookup_order':
                         _object(args, {'order_id'}, set(), 'lookup_order')
+                        SupportTools._text(args['order_id'])
                         tool_calls += 1
                         response = tools.lookup_order(args['order_id'])
                     elif decision.tool == 'open_ticket':
