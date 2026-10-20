@@ -2,6 +2,8 @@
 import sqlite3
 from pathlib import Path
 
+from .database import connect
+
 
 FAULTS = frozenset({'none', 'before_write', 'before_ack', 'after_ack'})
 
@@ -22,8 +24,7 @@ class SupportTools:
     """One ticket per synthetic order; action IDs bind permanently to a payload."""
 
     def __init__(self, database: Path):
-        self.connection = sqlite3.connect(database)
-        self.connection.execute('PRAGMA foreign_keys = ON')
+        self.connection = connect(database)
         self.connection.executescript('''
             CREATE TABLE IF NOT EXISTS orders (
                 order_id TEXT PRIMARY KEY, status TEXT NOT NULL
@@ -63,11 +64,13 @@ class SupportTools:
         if not isinstance(value, str) or not value.strip() or len(value) > 200:
             raise ValueError('expected nonblank string of at most 200 characters')
 
-    def open_ticket(self, action_id, order_id, reason, *, fault='none'):
+    def open_ticket(self, action_id, order_id, reason, *, fault='none', on_boundary=None):
         for value in (action_id, order_id, reason):
             self._text(value)
         if fault not in FAULTS:
             raise ValueError('unknown crash point')
+        if on_boundary is not None:
+            on_boundary('before_write')
         if fault == 'before_write':
             raise InjectedCrash(fault)
         # Serialize read/decide/write together, including across tool connections.
@@ -101,6 +104,10 @@ class SupportTools:
                 self.connection.execute(
                     'INSERT INTO duplicate_actions(action_id, ticket_id, kind) VALUES (?, ?, ?)',
                     (action_id, ticket_id, duplicate))
+            if on_boundary is not None:
+                on_boundary('during_write')
+        if on_boundary is not None:
+            on_boundary('before_ack')
         acknowledgment = {'ticket_id': ticket_id, 'order_id': order_id,
                           'duplicate': duplicate}
         if fault == 'before_ack':

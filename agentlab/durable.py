@@ -1,18 +1,18 @@
 """Persist intent before execution; resume bounded retries without changing identity."""
 import json
 from pathlib import Path
-import sqlite3
 import time
 import uuid
 
-from .stateful import InjectedCrash, SupportTools, verify_outcome
+from .stateful import FAULTS, InjectedCrash, SupportTools, verify_outcome
+from .database import connect
 
 
 class DurableRun:
     def __init__(self, database: Path, *, clock=time.time):
         self.database = database
         self.clock = clock
-        self.connection = sqlite3.connect(database)
+        self.connection = connect(database)
         self.connection.executescript('''
             CREATE TABLE IF NOT EXISTS runs (
                 run_id TEXT PRIMARY KEY, action_id TEXT NOT NULL UNIQUE,
@@ -56,7 +56,9 @@ class DurableRun:
                                (run_id,))]
         return result
 
-    def step(self, run_id, *, fault='none'):
+    def step(self, run_id, *, fault='none', on_boundary=None):
+        if not isinstance(fault, str) or fault not in FAULTS:
+            raise ValueError('unknown crash point')
         # Single executor per database. Count and checkpoint an attempt BEFORE any tool call.
         state = self.state(run_id)
         if state['status'] != 'pending' or self.clock() < state['next_at']:
@@ -73,12 +75,14 @@ class DurableRun:
                                     (run_id, number, 'started'))
         tools = SupportTools(self.database)
         try:
-            response = tools.open_ticket(state['action_id'], state['order_id'], state['reason'], fault=fault)
+            response = tools.open_ticket(state['action_id'], state['order_id'], state['reason'], fault=fault, on_boundary=on_boundary)
         except InjectedCrash:
             # Leave the durable started marker: the next process cannot know whether commit occurred.
             raise
         finally:
             tools.close()
+        if on_boundary is not None:
+            on_boundary('after_ack')
         outcome = verify_outcome(self.database, state['order_id'], state['reason'])
         with self.connection:
             self.connection.execute('UPDATE attempts SET outcome=?, evidence=? WHERE run_id=? AND number=?',

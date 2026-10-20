@@ -55,3 +55,15 @@ outstanding. No public deployment was performed.
 Next: observe remote CI after access is restored, review and publish the existing
 product branches, then add opt-in live adapters only with an explicit budget and
 credentials. No further feature expansion is needed for the offline resume demo.
+
+## Process-crash testing addition
+- Added SQLite WAL/FULL write connections and boundary instrumentation around writes and policy acknowledgment.
+- Added real subprocess termination and new-process resume at before-write, during-transaction, committed-before-ack, and ack-before-policy-checkpoint boundaries.
+- All 44 tests passed; the POSIX harness confirmed SIGKILL exits, rollback of uncommitted state, preserved identity, intact SQLite, and one final ticket/action.
+- Added `python -m agentlab.process_crash` and CRASH_TESTING.md. These checks do not claim host power-loss or distributed execution guarantees.
+
+## Property-testing addition
+- Added pinned optional Hypothesis dependencies, a stateful reference-model test, generated reopen/retry schedules, and generated persisted-budget checks.
+- `agentlab.verify --properties` passed all 44 standard tests, all three generated property tests, and the existing regression gate. The optional test environment also passed `pip check`.
+- Added explicit property verification to the CI matrix. Missing Hypothesis fails an explicitly requested property run; no silent skips or inflated example counts.
+- Added PROPERTY_TESTING.md with settings, invariants, reproducibility, and limits. Actual process kills remain separate from the generated exception schedules.
