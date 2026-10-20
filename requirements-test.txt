@@ -1,0 +1,3 @@
+# Optional property-test dependencies; the application uses the standard library.
+hypothesis==6.170.5
+sortedcontainers==2.4.0

@@ -11,10 +11,13 @@ from .regression import check
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--properties', action='store_true', help='also run optional Hypothesis invariant tests')
     parser.add_argument('--output', type=Path, default=Path('artifacts/portfolio'))
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'tests', '-v'], cwd=root, check=True)
+    if args.properties:
+        subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'property_tests', '-v'], cwd=root, check=True)
     try:
         report = publish(args.output)
         check(report)
