@@ -27,3 +27,12 @@ Milestone 2 is developed on `codex/reliability-milestone-2`, based on the unmerg
 - All 26 unittest tests pass, including fake-clock backoff, restart at every injected boundary, exhausted budgets, and conflicting run identity.
 - Single executor per database only. Crash injection remains controlled exceptions; no distributed leases or OS/power-loss guarantees. Unknown attempts consume budget even if the process stopped before calling the tool.
 - Next: bring persisted evidence into a visual offline demonstration. Provider adapters remain an explicit outstanding milestone.
+
+## Visual product increment
+- Added `python -m agentlab.dashboard`: freshly executed lookup, support-write, and durable-recovery experiments exported as a standalone HTML explorer and JSON evidence.
+- Added comparison cards, suite/outcome filters, attempt timelines, expandable final-state evidence, and evidence download. Included a real browser screenshot and an expanded front-page README with a two-minute walkthrough.
+- Added fixed read-only HTTP routes and defensive rendering: escaped JSON embedding, text-only rendering of trace values, no user-controlled filesystem mapping.
+- All 29 unittest tests passed. Browser validation in the installed Chromium/Playwright checked 12 initial lookup cards, 7 failed cards, recovery navigation, replay evidence, JSON download, 4 support fixtures, 390px layout without horizontal overflow, and zero JavaScript errors.
+- Initial export test exposed tuple/list JSON round-trip differences; comparison now uses the JSON representation. File navigation was disallowed by this machine's browser policy; browser checks used the supported local HTTP server.
+- Milestone 5 has an offline demonstrable slice; it is not declared fully complete. Cross-run history and latency/cost comparison remain limited; missing cost is explicitly unavailable. Milestone 4 provider/replay adapters remain outstanding. No remote CI, public hosting, live models, or paid APIs were used.
+- Next: provider-neutral offline replay and held-out fixtures, then cross-run history and CI/release validation. Continue tested feature-branch pushes without merging main.
