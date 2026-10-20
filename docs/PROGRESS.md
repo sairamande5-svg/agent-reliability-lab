@@ -42,3 +42,9 @@ Milestone 2 is developed on `codex/reliability-milestone-2`, based on the unmerg
 - All 35 tests passed; `python -m agentlab.adapters` completed with 2/4 fixtures passing. False-finish and exhausted-budget fixtures intentionally remain failures; no model metrics are claimed.
 - Tests cover unsupported tool rejection, budget enforcement, replay idempotency, independent grading, adapter mutation isolation, and invalid inputs.
 - No live provider implementation, credentials, or paid API calls. See ADAPTERS.md for the supported contract and precise heldout limitation.
+
+## Saved results increment
+- Persisted reports in SQLite with validated immutable run IDs, bounded exports of the latest 20 runs, and fixed list/detail API routes.
+- Dashboard can switch active/reference runs, compare lookup calls and local elapsed time, and inspect replay successes and intentional failures separately. Cost stays unavailable.
+- All 38 unittest tests passed. The committed optional browser acceptance command passed for history selection, comparison, filtering, recovery evidence, replay failures, download, mobile layout, and JavaScript errors. Screenshot refreshed from that run.
+- Remaining release work: versioned regression gate, GitHub Actions workflow, clean-checkout verification, and portfolio documentation. Live providers remain deferred.
