@@ -1,10 +1,10 @@
 # Offline portfolio release
 
-## Release scope: 16 of 20 checks complete (80%)
+## Release scope: 17 of 20 checks complete (85%)
 
 This is an equally weighted scope checklist, not a product-quality metric or an
 estimate of remaining effort. The offline MVP can be demonstrated now. Live model
-work and publication remain explicitly incomplete.
+work and reviewed default-branch publication of the latest additions remain incomplete.
 
 | Check | Evidence/status |
 | --- | --- |
@@ -24,7 +24,7 @@ work and publication remain explicitly incomplete.
 | Safe trace rendering and fixed read-only API routes | Injection/traversal tests passed |
 | Versioned behavioral regression gate | Passing; tests prove regressions are rejected |
 | Reproducible offline demo, documentation, and clean-source verification | Verified locally; 47 standard tests plus three property tests and browser acceptance |
-| Remote GitHub Actions matrix passes | Pending: workflow configured, API access denied |
+| Remote GitHub Actions matrix passes | Confirmed passing on Python 3.11–3.13; all ten PR checks passed for 3c091fa |
 | Opt-in live provider implementation | Deferred; protocol/offline adapter ready |
 | Actual held-out live-model evaluation with measured usage | Deferred; requires an explicit budget and credentials |
 | Reviewed default-branch publication | New additions pending review; earlier MVP merged externally |
@@ -66,9 +66,8 @@ python -m tools.browser_smoke
 ```
 
 The GitHub Actions workflow runs offline verification on Python 3.11–3.13 and a
-separate browser job, then uploads HTML/JSON and screenshot artifacts. Workflow
-configuration is committed; a remote green run has not been observed. It neither
-uses paid model APIs nor reads model secrets. A verified-build Pages workflow is configured; public hosting is not yet confirmed. See DEPLOYMENT.md.
+separate browser job, then uploads HTML/JSON and screenshot artifacts. Remote verification and Pages deployment have passed. It neither
+uses paid model APIs nor reads model secrets. A verified-build Pages workflow is configured; GitHub confirms publication at https://sairamande5-svg.github.io/agent-reliability-lab/ See DEPLOYMENT.md.
 
 ## Regression baseline
 
@@ -88,8 +87,8 @@ Real worker kills at four synchronized boundaries recover with one final ticket
 and one action identity under SQLite WAL/FULL. Generated state-machine tests
 compare database contents to an independent model through crashes, conflicts,
 replays, and reopening. The Pages build publishes only static synthetic evidence;
-local browser tests passed under the repository subpath. No public URL is claimed
-until actual deployment is verified.
+local browser tests passed under the repository subpath. GitHub reports successful deployment; direct hosted browser verification is still
+blocked by this environment's network proxy.
 
 ## Resume wording supported by current evidence
 
@@ -98,5 +97,4 @@ until actual deployment is verified.
 > idempotent tool actions, and an interactive execution-evidence dashboard.
 
 Do not describe the project as production deployed, live-model evaluated, or
-proven to improve real-world reliability. Describe CI as configured until a
-successful remote run is observed. Link the feature branch for the newest additions until a reviewed merge makes them visible on the default repository page. The earlier offline MVP has already been merged externally.
+proven to improve real-world reliability. Remote CI and deployment have now been observed passing. Link the feature branch for the newest additions until a reviewed merge makes them visible on the default repository page. The earlier offline MVP has already been merged externally.

@@ -44,9 +44,14 @@ confirmed public demo address. Feature work is not automatically merged into mai
 
 ## Current publication evidence
 
-The static build and local browser checks passed. The running environment receives
-`Forbidden` from GitHub's Pages API and a proxy `403` when attempting the public
-Pages hostname. That prevents checking or changing Pages settings and independently
-verifying deployment. A workflow file or guessed site URL does not establish that
-the site is live. No live-demo badge or public-site claim is made until deployment
-succeeds and the returned URL is verified.
+GitHub confirms successful publication to [the demo](https://sairamande5-svg.github.io/agent-reliability-lab/) in
+[workflow run 39508786286, attempt 3](https://github.com/sairamande5-svg/agent-reliability-lab/actions/runs/39508786286). All ten PR checks passed for
+commit `3c091fa`, including the Python 3.11–3.13 matrix, browser checks, verified
+static build, and deployment. The repository administrator enabled Pages with
+GitHub Actions and allowed `codex/reliability-public-demo` alongside `main` in
+the `github-pages` environment. No protection rules were removed.
+
+The environment proxy still returns 403 for direct access to the public hostname.
+Deployment success is independently confirmed through GitHub's deployment status,
+but post-deployment browser interaction has not been checked from this machine.
+Local Pages-style browser checks passed before publication.

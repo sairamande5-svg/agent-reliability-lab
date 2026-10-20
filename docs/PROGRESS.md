@@ -78,3 +78,10 @@ the new feature branch. Opt-in live adapters still require an explicit budget an
 - Added a Pages build/deploy workflow and deployment instructions. Both workflow YAML files parse locally. Remote CI/deployment has not been observed.
 - Discovered the previous portfolio release was merged externally into main (PR #6); these additions stay on `codex/reliability-public-demo` pending review. No merge was performed here.
 - GitHub Pages API returns Forbidden; access to the Pages hostname fails with a proxy 403. Pages activation and confirmation of a public demo remain external blockers. The artifact is built and locally verified, not claimed live.
+
+## Publication confirmed
+- The repository administrator enabled Pages and permitted the feature branch while retaining the main-branch rule.
+- Reran failed deployment; workflow 39508786286 attempt 3 succeeded. GitHub deployment 7213003537 reports success at https://sairamande5-svg.github.io/agent-reliability-lab/.
+- All ten PR #8 checks passed for 3c091fa, including the remote Python matrix, browsers, build, and deployment. The release checklist is now 17/20.
+- Added the confirmed demo URL to the README. Direct hosted browsing remains blocked by the execution environment proxy; local static browser acceptance and GitHub deployment status are the available evidence.
+- New additions remain unmerged; no merge was performed.

@@ -6,6 +6,8 @@ Agent Reliability Lab turns tool failures into inspectable experiments. It simul
 
 The central question: **if a tool commits an action but the acknowledgment is lost, can the caller recover without doing the action twice?**
 
+**[Open the published demo](https://sairamande5-svg.github.io/agent-reliability-lab/)** · [Successful deployment](https://github.com/sairamande5-svg/agent-reliability-lab/actions/runs/39508786286)
+
 ![Agent Reliability Lab dashboard showing policy comparison and synthetic support crash fixtures](docs/images/dashboard.png)
 
 ## What you can demonstrate today
@@ -21,7 +23,7 @@ This is currently an **offline engineering testbed with scripted policies and sy
 
 ## Engineering evidence
 
-**Python 3.11+ · SQLite WAL · Hypothesis · Playwright · GitHub Actions · Pages-ready static demo**
+**Python 3.11+ · SQLite WAL · Hypothesis · Playwright · GitHub Actions · GitHub Pages static demo**
 
 - **Real process recovery:** terminate a worker with SIGKILL at four synchronized
   write/acknowledgment boundaries, resume in a new process, and inspect rollback,
@@ -39,8 +41,9 @@ This is currently an **offline engineering testbed with scripted policies and sy
 
 The offline MVP is demonstrable, with **47 standard tests plus three Hypothesis property tests**, browser acceptance
 checks, persisted run comparison, offline replay, and a versioned regression gate.
-The [release checklist](docs/RELEASE.md) records **16/20 scope checks complete**;
-remote CI, live-provider work, and default-branch publication remain pending.
+The [release checklist](docs/RELEASE.md) records **17/20 scope checks complete**;
+remote CI and deployment have passed. Live-provider work and reviewed publication
+of the newest additions to the default branch remain pending.
 This percentage describes that checklist, not product quality or model performance.
 
 ```sh
@@ -133,4 +136,6 @@ python -m venv .venv-testing
 
 See [release notes](docs/RELEASE.md) for evidence-backed resume wording. The
 configured GitHub Actions matrix requests these property checks on every version;
-remote green CI and a live Pages URL remain unverified from this environment.
+remote CI and Pages deployment are confirmed. The environment proxy still blocks
+direct browsing of the public hostname, so hosted browser interaction has not
+been independently checked here.
