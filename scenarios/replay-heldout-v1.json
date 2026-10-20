@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "split": "heldout",
+  "cases": [
+    {
+      "name": "heldout-happy",
+      "task": {
+        "order_id": "order-H101",
+        "reason": "damaged package"
+      },
+      "decisions": [
+        {
+          "tool": "open_ticket",
+          "arguments": {
+            "action_id": "heldout-happy",
+            "order_id": "order-H101",
+            "reason": "damaged package"
+          }
+        },
+        {
+          "tool": "finish",
+          "arguments": {}
+        }
+      ],
+      "faults": [],
+      "budget": 3
+    },
+    {
+      "name": "heldout-lost-ack",
+      "task": {
+        "order_id": "order-H203",
+        "reason": "missing item"
+      },
+      "decisions": [
+        {
+          "tool": "open_ticket",
+          "arguments": {
+            "action_id": "heldout-lost-ack",
+            "order_id": "order-H203",
+            "reason": "missing item"
+          }
+        },
+        {
+          "tool": "open_ticket",
+          "arguments": {
+            "action_id": "heldout-lost-ack",
+            "order_id": "order-H203",
+            "reason": "missing item"
+          }
+        },
+        {
+          "tool": "finish",
+          "arguments": {}
+        }
+      ],
+      "faults": [
+        "before_ack"
+      ],
+      "budget": 3
+    },
+    {
+      "name": "heldout-false-finish",
+      "task": {
+        "order_id": "order-H307",
+        "reason": "late shipment"
+      },
+      "decisions": [
+        {
+          "tool": "finish",
+          "arguments": {}
+        }
+      ],
+      "faults": [],
+      "budget": 3
+    },
+    {
+      "name": "heldout-budget",
+      "task": {
+        "order_id": "order-H409",
+        "reason": "wrong item"
+      },
+      "decisions": [
+        {
+          "tool": "open_ticket",
+          "arguments": {
+            "action_id": "heldout-budget",
+            "order_id": "order-H409",
+            "reason": "wrong item"
+          }
+        },
+        {
+          "tool": "open_ticket",
+          "arguments": {
+            "action_id": "heldout-budget",
+            "order_id": "order-H409",
+            "reason": "wrong item"
+          }
+        },
+        {
+          "tool": "open_ticket",
+          "arguments": {
+            "action_id": "heldout-budget",
+            "order_id": "order-H409",
+            "reason": "wrong item"
+          }
+        }
+      ],
+      "faults": [
+        "before_write",
+        "before_write",
+        "before_write"
+      ],
+      "budget": 3
+    }
+  ]
+}
